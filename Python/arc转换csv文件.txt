@@ -1,0 +1,29 @@
+
+import os
+import zipfile
+import sqlite3 as db
+import pandas as pd
+
+pathname = r'C:\software'
+filename = 'real_370285001_20181209.arc'
+
+#pathname=r'E:\007 WindfarmWork\051 3S\data\51'
+#filename='real_650132051_20171121.arc'
+def ArcReader(pathname,filename):
+    zfile = zipfile.ZipFile(os.path.join(pathname,filename),'r')
+    f = zfile.namelist()[0]
+    zfile.extract(f,pathname)
+    zfile.close()
+    dbfile=os.path.join(pathname,f)
+    DBcsv=dbfile.split('\\')[-1].replace('db','csv')
+    conn=db.connect(dbfile)
+    sql='select * from realtimedata'
+    df=pd.read_sql(sql,conn)
+    conn.close()
+    #df.to_csv(os.path.join(C:/software,DBcsv), index=False)
+    df.to_csv('C:/software/real_370285001_20181209.csv' , index = False)
+    print df
+    if os.path.exists(dbfile):
+        os.remove(dbfile)
+    return df
+ArcReader(pathname,filename)
